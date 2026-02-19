@@ -8,8 +8,8 @@ class MenuScene extends Phaser.Scene{
     }
 
     create(){
-        const bg = this.add.image(400, 225,"start");
-        bg.setDisplaySize(800,450);
+        const bg = this.add.image(500, 300,"start");
+        bg.setDisplaySize(1000,700);
 
         this.add.text("Da clic para inciar");
 

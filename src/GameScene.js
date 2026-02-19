@@ -13,6 +13,13 @@ class GameScene extends Phaser.Scene {
     this.wall = null;
 
     this.exitBtn = null;
+
+    //Variables
+    this.enemy=null;
+    this.enemySpeed =120;
+    this.enemyDir=1;
+    this.enemyMinX = 220;
+    this.enemyMaxX=740;
   }
 
   preload() {
@@ -61,6 +68,7 @@ class GameScene extends Phaser.Scene {
     const wallRect = this.add.rectangle(330, 225, 100, 100, 0x111111);
     this.wall = this.physics.add.existing(wallRect, true);
     this.physics.add.collider(this.player, this.wall);
+    this.createEnemy();
 
     this.coins = this.physics.add.group();
 
@@ -71,11 +79,35 @@ class GameScene extends Phaser.Scene {
     this.physics.add.overlap(this.player, this.coins, this.collectCoin, null, this);
 
     this.scoreText = this.add.text(20, 20, "Score:0");
+
+    this.physics.add.overlap(this.player,this.enemy,this.hitEnemy,null,this);
+
+
   }
 
   exitToMenu() {
     this.registry.set("score", this.score);
     this.scene.start("MenuScene");
+  }
+
+  hitEnemy(){
+    this.registry.set("score", this.score);
+    this.scene.restart();
+  }
+
+  createEnemy(){
+    const g = this.add.graphics();
+    g.fillStyle(0xff3333,1);
+    g.fillRect(0,0,50,50);
+    g.generateTexture("enemy",50,50);
+    g.destroy();
+
+    this.enemy = this.physics.add.sprite(600,250,"enemy");
+    this.enemy.setCollideWorldBounds(true);
+    this.enemy.body.allowGravity=false;
+    this.enemy.setImmovable(true);
+
+    this.enemy.body.setSize(50,50,true);
   }
 
   createCoin(x, y) {
@@ -85,12 +117,24 @@ class GameScene extends Phaser.Scene {
     c.body.allowGravity = false;
   }
 
+  moveEnemy(){
+    if(!this.enemy) return;
+    this.enemy.setVelocityX(this.enemySpeed*this.enemyDir);
+    if(this.enemy.x<=this.enemyMinX){
+        this.enemyDir=1;
+    }else if(this.enemy.x>= this.enemyMaxX){
+        this.enemyDir=-1;
+    }
+  }
+
   collectCoin(playerObj, coinObj) {
     coinObj.destroy();
     this.score += 1;
     this.scoreText.setText("Score: " + this.score);
   }
+
   update() {
+    this.moveEnemy();
     const p = this.player;
     const c = this.cursors;
     const SPEED = this.SPEED;
